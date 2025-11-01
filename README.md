@@ -1,0 +1,185 @@
+# Workers Jobs Manager
+
+A Django-based fullstack application for managing workers and their daily chores schedule.
+
+## Overview
+
+This app manages workers and their daily task assignments with an intelligent queue-based suggestion system.
+
+### Main Features
+
+1. **Workers Management** - Add, edit, delete workers
+2. **Calendar (History)** - View past days' schedules and assignments  
+3. **Create Assignment (Today's Schedule)** - Assign workers to tasks with queue-based suggestions
+
+## Technical Stack
+
+- **Backend**: Django 4.2.25
+- **Frontend**: Django Templates + Bootstrap 5
+- **Database**: SQLite
+
+## Project Structure
+
+```
+Shavzak-App/
+├── manage.py
+├── requirements.txt
+├── workers_jobs_manager/      # Main project folder
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+├── workers/                   # Workers CRUD app
+│   ├── models.py
+│   ├── views.py
+│   └── urls.py
+├── assignments/               # Assignments & queue logic app
+│   ├── models.py
+│   ├── views.py
+│   └── urls.py
+├── templates/                 # Shared templates
+│   ├── base.html
+│   ├── home.html
+│   ├── workers/
+│   └── assignments/
+├── static/                    # Static files (CSS, JS)
+│   └── css/
+│       └── styles.css
+└── db.sqlite3                # SQLite database
+```
+
+## Setup Instructions
+
+### 1. Create Virtual Environment
+
+```bash
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+### 2. Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Run Migrations
+
+```bash
+python manage.py migrate
+```
+
+### 4. Start Development Server
+
+```bash
+python manage.py runserver
+```
+
+The application will be available at: http://127.0.0.1:8000/
+
+## Development Status
+
+✅ **Step 1 - Project Setup** - Complete
+- Django project created
+- Apps configured (workers, assignments)
+- Base templates and navigation
+- Three placeholder pages
+
+✅ **Step 2 - Workers CRUD** - Complete
+- Worker model with all fields (name, title, counters)
+- Full CRUD operations (Create, Read, Update, Delete)
+- Workers list page with table and actions
+- Add/Edit worker forms with Bootstrap styling
+- Delete confirmation modals
+- Admin interface configured
+- 8 unit tests (all passing)
+
+✅ **Step 3 - Assignments & Calendar** - Complete
+- Assignment model with date, time_slot, task_type, worker, is_commander
+- 12 time slots covering 24 hours (07:00-09:00 through 05:00-07:00)
+- Guard Duty: Time-slotted task (1 worker for daytime, 2 for nighttime)
+- Full-day tasks: Kitchen (2 workers), Patrol A (1 commander + 5), Patrol B (1 commander + 5)
+- Calendar view with date picker
+- Left side: Time slot table showing guard duty assignments
+- Right side: Cards showing Kitchen, Patrol A, and Patrol B workers
+- Commander designation for patrol groups
+- Admin interface configured
+- 9 unit tests (all passing)
+
+✅ **Step 4 - Queue System** - Complete
+- QueueManager class for worker suggestions
+- Queue ordering per task type based on counters
+- get_next_suggestion() - suggests worker with lowest counter
+- accept_suggestion() - creates assignment and increments counters
+- manual_assign() - assign specific worker
+- Excludes already assigned workers
+- Guard duty excludes workers from ALL time slots on same date
+- Different counter logic per task type (hard_chores for kitchen, outer_partner for patrols)
+- 9 unit tests (all passing)
+
+✅ **Step 5 - Create Assignment Page** - Complete
+- Assignment interface at /assign/ for today's schedule
+- Session-based assignments (no DB writes until Submit)
+- Left side: Guard duty time slots with suggestions
+- Right side: Full-day tasks (Kitchen, Patrol A, Patrol B) with suggestions
+- Worker information panel showing all workers with their counters
+- Accept buttons for suggested workers
+- Remove buttons for pending (session) assignments
+- Submit All button to commit all assignments to database
+- Clear All button to reset pending assignments
+- Color-coded cards and badges (pending vs committed)
+- Commander suggestions for patrol groups
+- Real-time availability tracking
+
+✅ **Step 6 - Counters, Validation & Polish** - Complete
+- Session-based assignment management (SessionAssignmentManager)
+- Counter increment on Submit (not on Accept)
+- Night shift bonus: Guard duty 01:00-05:00 gets +1 extra to hard_chores_counter
+- Revert individual assignments with counter decrement
+- Revert all assignments for a date
+- Proper counter decrement including night shift bonus
+- Visual distinction: Pending (⏳ yellow) vs Committed (🔒 dark)
+- Form validation and error handling
+- Success/error messages for all operations
+
+🔲 **Step 7 - Tests & Docs** - Pending
+
+## Navigation
+
+- **Schedule (Calendar)**: http://127.0.0.1:8000/calendar/ or http://127.0.0.1:8000/
+- **Workers Management**: http://127.0.0.1:8000/workers/
+- **Admin Panel**: http://127.0.0.1:8000/admin/
+
+## How to Use
+
+### Managing Workers
+
+1. Go to http://127.0.0.1:8000/workers/
+2. Click "Add New Worker" to create workers
+3. Fill in name and title (Commander or Soldier)
+4. View worker counters in the list
+
+### Creating Assignments
+
+1. Go to http://127.0.0.1:8000/calendar/ (or just http://127.0.0.1:8000/)
+2. Select a date using the date picker
+3. Click "Add Worker" button in any time slot or task
+4. Select a worker from the dropdown
+5. For patrol groups, check "Assign as Commander" if needed
+6. Click "Assign Worker"
+
+### Removing Assignments
+
+- Click the X button next to any assigned worker to remove them
+- Confirmation dialog will appear before removal
+
+## Features
+
+- **Guard Duty Schedule**: 12 time slots covering 24 hours
+  - Daytime (07:00-17:00): 1 worker per slot
+  - Nighttime (17:00-07:00): 2 workers per slot
+- **Full-Day Tasks**: 
+  - Kitchen: 2 workers
+  - Patrol A: 6 workers (1 commander + 5 soldiers)
+  - Patrol B: 6 workers (1 commander + 5 soldiers)
+- **Simple Interface**: Click to assign, click X to remove
+- **Worker Information**: View worker counters in selection dropdown

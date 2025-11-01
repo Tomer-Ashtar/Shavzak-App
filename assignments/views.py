@@ -1,0 +1,125 @@
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.urls import reverse
+from datetime import date
+from .models import Assignment
+from workers.models import Worker
+
+
+def calendar_view(request):
+    """Main calendar view for creating and viewing assignments."""
+    
+    # Get selected date from query params or use today
+    selected_date_str = request.GET.get('date')
+    if selected_date_str:
+        try:
+            selected_date = date.fromisoformat(selected_date_str)
+        except ValueError:
+            selected_date = date.today()
+    else:
+        selected_date = date.today()
+    
+    # Get all time slots
+    time_slots = [choice[0] for choice in Assignment.TIME_SLOT_CHOICES]
+    
+    # Get all workers for selection
+    all_workers = Worker.objects.all().order_by('title', 'name')
+    
+    # Build guard duty schedule
+    schedule_data = []
+    for time_slot in time_slots:
+        guard_workers = Assignment.objects.filter(
+            date=selected_date,
+            time_slot=time_slot,
+            task_type='guard_duty'
+        ).select_related('worker')
+        
+        required_workers = Assignment.get_required_workers_for_slot(time_slot)
+        
+        schedule_data.append({
+            'time_slot': time_slot,
+            'guard_workers': guard_workers,
+            'required_workers': required_workers,
+        })
+    
+    # Get full-day task assignments
+    kitchen_workers = Assignment.objects.filter(
+        date=selected_date,
+        task_type='kitchen',
+        time_slot__isnull=True
+    ).select_related('worker')
+    
+    patrol_a_workers = Assignment.objects.filter(
+        date=selected_date,
+        task_type='patrol_a',
+        time_slot__isnull=True
+    ).select_related('worker')
+    
+    patrol_b_workers = Assignment.objects.filter(
+        date=selected_date,
+        task_type='patrol_b',
+        time_slot__isnull=True
+    ).select_related('worker')
+    
+    context = {
+        'selected_date': selected_date,
+        'schedule_data': schedule_data,
+        'kitchen_workers': kitchen_workers,
+        'patrol_a_workers': patrol_a_workers,
+        'patrol_b_workers': patrol_b_workers,
+        'all_workers': all_workers,
+        'today': date.today(),
+    }
+    
+    return render(request, 'assignments/calendar.html', context)
+
+
+def assign_worker(request):
+    """Assign a worker to a task."""
+    if request.method == 'POST':
+        selected_date_str = request.POST.get('date')
+        task_type = request.POST.get('task_type')
+        time_slot = request.POST.get('time_slot', None) or None
+        worker_id = request.POST.get('worker_id')
+        is_commander = request.POST.get('is_commander') == 'on'
+        
+        try:
+            selected_date = date.fromisoformat(selected_date_str)
+            worker = Worker.objects.get(id=worker_id)
+            
+            # Create the assignment
+            Assignment.objects.create(
+                date=selected_date,
+                time_slot=time_slot,
+                task_type=task_type,
+                worker=worker,
+                is_commander=is_commander
+            )
+            
+            messages.success(request, f'{worker.name} assigned successfully!')
+            
+        except (ValueError, Worker.DoesNotExist) as e:
+            messages.error(request, f'Error: {str(e)}')
+        
+        return redirect(f"{reverse('assignments:calendar')}?date={selected_date_str}")
+    
+    return redirect('assignments:calendar')
+
+
+def remove_assignment(request, assignment_id):
+    """Remove an assignment."""
+    if request.method == 'POST':
+        try:
+            assignment = get_object_or_404(Assignment, id=assignment_id)
+            date_param = assignment.date.isoformat()
+            worker_name = assignment.worker.name if assignment.worker else "Unknown"
+            
+            assignment.delete()
+            
+            messages.success(request, f'Assignment for {worker_name} removed!')
+            return redirect(f"{reverse('assignments:calendar')}?date={date_param}")
+            
+        except Exception as e:
+            messages.error(request, f'Error: {str(e)}')
+    
+    return redirect('assignments:calendar')
