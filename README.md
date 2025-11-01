@@ -10,7 +10,6 @@ This app manages workers and their daily task assignments with an intelligent qu
 
 1. **Workers Management** - Add, edit, delete workers
 2. **Calendar (History)** - View past days' schedules and assignments  
-3. **Create Assignment (Today's Schedule)** - Assign workers to tasks with queue-based suggestions
 
 ## Technical Stack
 
