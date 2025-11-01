@@ -194,7 +194,10 @@
                     
                     <div class="mb-3">
                         <label class="form-label"><strong>Select Worker:</strong></label>
-                        <select name="worker_id" class="form-select" required>
+                        <div id="suggested-worker" class="alert alert-success mb-2" style="display: none;">
+                            <strong>💡 Suggested (next in queue):</strong> <span id="suggested-worker-name"></span>
+                        </div>
+                        <select name="worker_id" class="form-select" id="worker-dropdown" required>
                             <option value="">-- Choose a worker --</option>
                             {% for worker in all_workers %}
                                 <option value="{{ worker.id }}">
@@ -202,6 +205,18 @@
                                 </option>
                             {% endfor %}
                         </select>
+                    </div>
+                    
+                    <!-- Queue Order Display -->
+                    <div class="mb-3">
+                        <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="collapse" data-bs-target="#queue-order">
+                            <i class="bi bi-list-ol"></i> View Queue Order
+                        </button>
+                        <div class="collapse mt-2" id="queue-order">
+                            <div class="card card-body">
+                                <small id="queue-display" class="text-muted">Select a task to see queue</small>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="mb-3 form-check" id="commander-checkbox-container" style="display: none;">
@@ -224,6 +239,23 @@
 {% block extra_js %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 <script>
+// Queue data from backend
+var queueSuggestions = {{ queue_suggestions_json|safe }};
+var taskQueues = {
+    {% for task_type, queue in task_queues.items %}
+    '{{ task_type }}': [
+        {% for entry in queue %}
+        {
+            'position': {{ entry.position }},
+            'worker_name': '{{ entry.worker.name }}',
+            'worker_title': '{{ entry.worker.get_title_display }}',
+            'worker_id': {{ entry.worker.id }}
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ]{% if not forloop.last %},{% endif %}
+    {% endfor %}
+};
+
 // Handle modal data transfer
 var addWorkerModal = document.getElementById('addWorkerModal');
 addWorkerModal.addEventListener('show.bs.modal', function (event) {
@@ -244,6 +276,36 @@ addWorkerModal.addEventListener('show.bs.modal', function (event) {
     } else {
         commanderCheckbox.style.display = 'none';
         document.getElementById('is-commander').checked = false;
+    }
+    
+    // Show suggested worker
+    var suggestedDiv = document.getElementById('suggested-worker');
+    var suggestedNameSpan = document.getElementById('suggested-worker-name');
+    var dropdown = document.getElementById('worker-dropdown');
+    
+    if (queueSuggestions[taskType]) {
+        var suggested = queueSuggestions[taskType];
+        suggestedDiv.style.display = 'block';
+        suggestedNameSpan.textContent = suggested.name + ' (' + suggested.title + ')';
+        
+        // Pre-select suggested worker
+        dropdown.value = suggested.id;
+    } else {
+        suggestedDiv.style.display = 'none';
+        dropdown.value = '';
+    }
+    
+    // Display queue order
+    var queueDisplay = document.getElementById('queue-display');
+    if (taskQueues[taskType]) {
+        var queueHtml = '<strong>Queue Order for ' + taskType + ':</strong><ol class="mb-0 mt-2">';
+        taskQueues[taskType].forEach(function(entry) {
+            queueHtml += '<li>' + entry.worker_name + ' (' + entry.worker_title + ')</li>';
+        });
+        queueHtml += '</ol>';
+        queueDisplay.innerHTML = queueHtml;
+    } else {
+        queueDisplay.innerHTML = '<em>No queue available</em>';
     }
 });
 </script>

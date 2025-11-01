@@ -24,8 +24,14 @@ class WorkerCreateView(CreateView):
     success_url = reverse_lazy('workers:list')
     
     def form_valid(self, form):
+        response = super().form_valid(form)
+        
+        # Initialize queue entries for this worker
+        from assignments.models import TaskQueue
+        TaskQueue.initialize_for_worker(form.instance)
+        
         messages.success(self.request, f'Worker "{form.instance.name}" created successfully!')
-        return super().form_valid(form)
+        return response
 
 
 class WorkerUpdateView(UpdateView):

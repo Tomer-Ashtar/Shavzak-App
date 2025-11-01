@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Assignment
+from .models import Assignment, TaskQueue
 
 
 @admin.register(Assignment)
@@ -18,6 +18,28 @@ class AssignmentAdmin(admin.ModelAdmin):
         }),
         ('Timestamps', {
             'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+
+@admin.register(TaskQueue)
+class TaskQueueAdmin(admin.ModelAdmin):
+    """Admin interface for TaskQueue model."""
+    
+    list_display = ['worker', 'task_type', 'position', 'updated_at']
+    list_filter = ['task_type']
+    search_fields = ['worker__name']
+    readonly_fields = ['updated_at']
+    ordering = ['task_type', 'position']
+    list_per_page = 100
+    
+    fieldsets = (
+        ('Queue Details', {
+            'fields': ('worker', 'task_type', 'position')
+        }),
+        ('Timestamps', {
+            'fields': ('updated_at',),
             'classes': ('collapse',)
         }),
     )

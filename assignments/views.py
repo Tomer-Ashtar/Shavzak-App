@@ -2,8 +2,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.urls import reverse
 from datetime import date
-from .models import Assignment
+from .models import Assignment, TaskQueue
 from workers.models import Worker
+import json
 
 
 def calendar_view(request):
@@ -24,6 +25,24 @@ def calendar_view(request):
     
     # Get all workers for selection
     all_workers = Worker.objects.all().order_by('title', 'name')
+    
+    # Get queue suggestions for each task type
+    queue_suggestions = {}
+    for task_type, _ in Assignment.TASK_TYPE_CHOICES:
+        suggested_worker = TaskQueue.get_next_worker(task_type)
+        if suggested_worker:
+            queue_suggestions[task_type] = {
+                'id': suggested_worker.id,
+                'name': suggested_worker.name,
+                'title': suggested_worker.get_title_display(),
+            }
+        else:
+            queue_suggestions[task_type] = None
+    
+    # Get full queue for display
+    task_queues = {}
+    for task_type, _ in Assignment.TASK_TYPE_CHOICES:
+        task_queues[task_type] = TaskQueue.get_queue_for_task(task_type)
     
     # Build guard duty schedule
     schedule_data = []
@@ -68,6 +87,9 @@ def calendar_view(request):
         'patrol_a_workers': patrol_a_workers,
         'patrol_b_workers': patrol_b_workers,
         'all_workers': all_workers,
+        'queue_suggestions': queue_suggestions,
+        'queue_suggestions_json': json.dumps(queue_suggestions),
+        'task_queues': task_queues,
         'today': date.today(),
     }
     
@@ -75,7 +97,7 @@ def calendar_view(request):
 
 
 def assign_worker(request):
-    """Assign a worker to a task."""
+    """Assign a worker to a task and update queue."""
     if request.method == 'POST':
         selected_date_str = request.POST.get('date')
         task_type = request.POST.get('task_type')
@@ -96,7 +118,10 @@ def assign_worker(request):
                 is_commander=is_commander
             )
             
-            messages.success(request, f'{worker.name} assigned successfully!')
+            # Move worker to end of queue for this task type
+            TaskQueue.move_to_end(worker, task_type)
+            
+            messages.success(request, f'{worker.name} assigned and moved to end of {task_type} queue!')
             
         except (ValueError, Worker.DoesNotExist) as e:
             messages.error(request, f'Error: {str(e)}')
@@ -107,16 +132,24 @@ def assign_worker(request):
 
 
 def remove_assignment(request, assignment_id):
-    """Remove an assignment."""
+    """Remove an assignment and move worker back to front of queue."""
     if request.method == 'POST':
         try:
             assignment = get_object_or_404(Assignment, id=assignment_id)
             date_param = assignment.date.isoformat()
-            worker_name = assignment.worker.name if assignment.worker else "Unknown"
+            worker = assignment.worker
+            task_type = assignment.task_type
             
+            # Delete the assignment
             assignment.delete()
             
-            messages.success(request, f'Assignment for {worker_name} removed!')
+            # Move worker back to front of queue for this task
+            if worker:
+                TaskQueue.move_to_front(worker, task_type)
+                messages.success(request, f'{worker.name} removed and moved to front of {task_type} queue!')
+            else:
+                messages.success(request, 'Assignment removed!')
+            
             return redirect(f"{reverse('assignments:calendar')}?date={date_param}")
             
         except Exception as e:

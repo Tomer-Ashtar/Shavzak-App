@@ -105,7 +105,7 @@ class CalendarViewTest(TestCase):
         """Test calendar view loads correctly."""
         response = self.client.get(reverse('assignments:calendar'))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Calendar (History)")
+        self.assertContains(response, "Schedule")
     
     def test_calendar_shows_assignments(self):
         """Test calendar displays assignments."""
