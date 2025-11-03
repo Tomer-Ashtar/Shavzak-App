@@ -25,27 +25,45 @@ This app manages workers and their daily task assignments with an intelligent qu
 Shavzak-App/
 ├── manage.py
 ├── requirements.txt
-├── workers_jobs_manager/      # Main project folder
+├── .gitignore
+├── README.md
+├── workers_jobs_manager/      # Main Django project
 │   ├── settings.py
 │   ├── urls.py
-│   └── wsgi.py
+│   ├── wsgi.py
+│   └── asgi.py
 ├── workers/                   # Workers CRUD app
 │   ├── models.py
 │   ├── views.py
-│   └── urls.py
+│   ├── forms.py
+│   ├── urls.py
+│   ├── admin.py
+│   ├── tests.py
+│   └── migrations/
 ├── assignments/               # Assignments & queue logic app
-│   ├── models.py
+│   ├── models.py (Assignment, TaskQueue)
 │   ├── views.py
-│   └── urls.py
-├── templates/                 # Shared templates
+│   ├── urls.py
+│   ├── admin.py
+│   ├── tests.py
+│   ├── test_task_queue.py
+│   ├── test_night_shift.py
+│   ├── migrations/
+│   └── management/
+│       └── commands/
+│           └── initialize_queues.py
+├── templates/                 # Django templates
 │   ├── base.html
-│   ├── home.html
 │   ├── workers/
+│   │   ├── list.html
+│   │   └── worker_form.html
 │   └── assignments/
-├── static/                    # Static files (CSS, JS)
+│       └── calendar.html
+├── static/                    # Static files
 │   └── css/
 │       └── styles.css
-└── db.sqlite3                # SQLite database
+├── venv/                      # Virtual environment
+└── db.sqlite3                 # SQLite database
 ```
 
 ## Setup Instructions
