@@ -39,10 +39,14 @@
                         </thead>
                         <tbody>
                             {% for slot in schedule_data %}
-                            <tr>
+                            <tr {% if slot.time_slot == '01:00-03:00' or slot.time_slot == '03:00-05:00' %}class="table-warning"{% endif %}>
                                 <td class="align-middle text-center">
                                     <strong>{{ slot.time_slot }}</strong>
-                                    <br><small class="text-muted">({{ slot.required_workers }})</small>
+                                    {% if slot.time_slot == '01:00-03:00' or slot.time_slot == '03:00-05:00' %}
+                                        <br><small class="badge bg-warning text-dark">🌙 Night Shift +HC</small>
+                                    {% else %}
+                                        <br><small class="text-muted">({{ slot.required_workers }})</small>
+                                    {% endif %}
                                 </td>
                                 <td class="p-2">
                                     <div class="d-flex flex-wrap gap-2 align-items-center">

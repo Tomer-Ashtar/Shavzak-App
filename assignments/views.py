@@ -118,10 +118,17 @@ def assign_worker(request):
                 is_commander=is_commander
             )
             
+            # Check if this is a night shift (01:00-03:00 or 03:00-05:00)
+            night_shift_slots = ['01:00-03:00', '03:00-05:00']
+            if task_type == 'guard_duty' and time_slot in night_shift_slots:
+                worker.hard_chores_counter += 1
+                worker.save()
+                messages.success(request, f'{worker.name} assigned to night shift! Hard chores counter increased.')
+            else:
+                messages.success(request, f'{worker.name} assigned successfully!')
+            
             # Move worker to end of queue for this task type
             TaskQueue.move_to_end(worker, task_type)
-            
-            messages.success(request, f'{worker.name} assigned and moved to end of {task_type} queue!')
             
         except (ValueError, Worker.DoesNotExist) as e:
             messages.error(request, f'Error: {str(e)}')
@@ -139,6 +146,11 @@ def remove_assignment(request, assignment_id):
             date_param = assignment.date.isoformat()
             worker = assignment.worker
             task_type = assignment.task_type
+            time_slot = assignment.time_slot
+            
+            # Check if this was a night shift
+            night_shift_slots = ['01:00-03:00', '03:00-05:00']
+            is_night_shift = task_type == 'guard_duty' and time_slot in night_shift_slots
             
             # Delete the assignment
             assignment.delete()
@@ -146,7 +158,14 @@ def remove_assignment(request, assignment_id):
             # Move worker back to front of queue for this task
             if worker:
                 TaskQueue.move_to_front(worker, task_type)
-                messages.success(request, f'{worker.name} removed and moved to front of {task_type} queue!')
+                
+                # Decrement hard chores counter if it was night shift
+                if is_night_shift:
+                    worker.hard_chores_counter = max(0, worker.hard_chores_counter - 1)
+                    worker.save()
+                    messages.success(request, f'{worker.name} removed from night shift! Hard chores counter decreased.')
+                else:
+                    messages.success(request, f'{worker.name} removed and moved to front of {task_type} queue!')
             else:
                 messages.success(request, 'Assignment removed!')
             

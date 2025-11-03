@@ -142,7 +142,7 @@ The application will be available at: http://127.0.0.1:8000/
 - View Queue Order button in modal
 - 7 TaskQueue unit tests (all passing)
 
-✅ **Step 7 - Interface Simplification** - Complete
+✅ **Step 7 - Interface Simplification & Night Shift** - Complete
 - Calendar is now the main/home page
 - Removed separate assignment page
 - Removed session-based assignments
@@ -150,7 +150,11 @@ The application will be available at: http://127.0.0.1:8000/
 - Simple click-to-assign interface
 - Modal-based worker selection
 - Immediate database persistence
-- All 24 tests passing
+- Night shift bonus (01:00-05:00): +1 to hard_chores_counter
+- Revert functionality: Remove assignment → worker to front of queue
+- Night shift counter decrement on removal
+- Visual highlighting for night shift slots
+- All 32 tests passing (including 6 night shift tests)
 
 ## Navigation
 
@@ -223,6 +227,14 @@ This creates queue positions for all workers across all task types.
 - **View queue order** - Click button in modal to see full rotation
 - **Flexible selection** - Can pick any worker, not just suggested
 - **Persistent queues** - Queue order stored in database
+- **Revert to front** - Removed workers move back to position 0 (front of queue)
+
+### Night Shift Bonus
+- **Guard duty 01:00-03:00 and 03:00-05:00** - Special night shifts
+- **Assignment** → Hard chores counter +1
+- **Removal** → Hard chores counter -1
+- **Visual feedback** - Special message when assigning/removing night shift workers
+- **Protection** - Counter never goes below 0
 
 ### User Interface
 - **Simple click-to-assign** - Click "Add Worker" button to assign
