@@ -3,6 +3,7 @@
 body {
     min-height: 100vh;
     background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
 }
 
 .navbar-brand {
@@ -28,6 +29,19 @@ body {
 }
 
 .btn-group-sm .btn {
-    margin-right: 5px;
+    margin-left: 5px;
+}
+
+/* RTL specific adjustments */
+.badge {
+    margin-left: 5px;
+}
+
+.float-end {
+    float: left !important;
+}
+
+.text-end {
+    text-align: left !important;
 }
 

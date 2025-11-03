@@ -5,8 +5,8 @@ class Worker(models.Model):
     """Model representing a worker with their task counters."""
     
     TITLE_CHOICES = [
-        ('commander', 'Commander'),
-        ('soldier', 'Soldier'),
+        ('commander', 'מפקד'),
+        ('soldier', 'חייל'),
     ]
     
     name = models.CharField(max_length=200)

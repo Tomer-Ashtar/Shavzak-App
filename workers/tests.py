@@ -49,13 +49,13 @@ class WorkerViewsTest(TestCase):
         response = self.client.get(reverse('workers:list'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Test Worker")
-        self.assertContains(response, "Soldier")
+        self.assertContains(response, "חייל")  # Soldier in Hebrew
     
     def test_worker_create_view_get(self):
         """Test worker create form loads."""
         response = self.client.get(reverse('workers:add'))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Add New Worker")
+        self.assertContains(response, "הוספת עובד")  # Add worker in Hebrew
     
     def test_worker_create_view_post(self):
         """Test worker creation via POST."""
@@ -73,7 +73,7 @@ class WorkerViewsTest(TestCase):
         """Test worker update view."""
         response = self.client.get(reverse('workers:edit', args=[self.worker.pk]))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Edit Worker")
+        self.assertContains(response, "עריכת עובד")  # Edit worker in Hebrew
         self.assertContains(response, "Test Worker")
     
     def test_worker_delete_view(self):

@@ -14,8 +14,10 @@ This app manages workers and their daily task assignments with an intelligent qu
 ## Technical Stack
 
 - **Backend**: Django 4.2.25
-- **Frontend**: Django Templates + Bootstrap 5
+- **Frontend**: Django Templates + Bootstrap 5 RTL
 - **Database**: SQLite
+- **Language**: Hebrew (עברית)
+- **Layout**: Right-to-Left (RTL)
 
 ## Project Structure
 
@@ -154,6 +156,15 @@ The application will be available at: http://127.0.0.1:8000/
 - Night shift counter decrement on removal
 - Visual highlighting for night shift slots
 - All 32 tests passing (including 6 night shift tests)
+
+✅ **Step 8 - Hebrew RTL Interface** - Complete
+- Full RTL (Right-to-Left) layout using Bootstrap RTL
+- Complete Hebrew translation of all UI elements
+- Hebrew model choice labels (מפקד/חייל)
+- Hebrew task type names (שמירה, מטבח, סיור)
+- Timezone: Asia/Jerusalem
+- Language: Hebrew (he)
+- All tests updated and passing with Hebrew text
 
 ## Navigation
 

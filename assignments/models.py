@@ -6,10 +6,10 @@ class Assignment(models.Model):
     """Model representing a worker assignment to a task."""
     
     TASK_TYPE_CHOICES = [
-        ('guard_duty', 'Guard Duty'),
-        ('patrol_a', 'Patrol A'),
-        ('patrol_b', 'Patrol B'),
-        ('kitchen', 'Kitchen'),
+        ('guard_duty', 'שמירה'),
+        ('patrol_a', 'סיור א\''),
+        ('patrol_b', 'סיור ב\''),
+        ('kitchen', 'מטבח'),
     ]
     
     TIME_SLOT_CHOICES = [

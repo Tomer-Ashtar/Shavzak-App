@@ -1,23 +1,23 @@
 {% extends 'base.html' %}
 
-{% block title %}Schedule - Workers Jobs Manager{% endblock %}
+{% block title %}לוח משמרות - שיבוץ קרבי{% endblock %}
 
 {% block content %}
 <div class="row mb-4">
     <div class="col-md-6">
-        <h1>Schedule</h1>
+        <h1>לוח משמרות</h1>
         <form method="get" class="d-flex align-items-center gap-2 mt-3">
-            <label for="date" class="form-label mb-0"><strong>Date:</strong></label>
+            <label for="date" class="form-label mb-0"><strong>תאריך:</strong></label>
             <input type="date" name="date" id="date" class="form-control" style="max-width: 200px;" 
                    value="{{ selected_date|date:'Y-m-d' }}" onchange="this.form.submit()">
-            <button type="submit" class="btn btn-primary btn-sm">View</button>
+            <button type="submit" class="btn btn-primary btn-sm">הצג</button>
             {% if selected_date != today %}
-            <a href="?date={{ today|date:'Y-m-d' }}" class="btn btn-outline-secondary btn-sm">Today</a>
+            <a href="?date={{ today|date:'Y-m-d' }}" class="btn btn-outline-secondary btn-sm">היום</a>
             {% endif %}
         </form>
     </div>
-    <div class="col-md-6 text-end">
-        <h4 class="text-primary">{{ selected_date|date:"l, F d, Y" }}</h4>
+    <div class="col-md-6 text-start">
+        <h4 class="text-primary">{{ selected_date|date:"l, d/m/Y" }}</h4>
     </div>
 </div>
 
@@ -26,15 +26,15 @@
     <div class="col-md-8">
         <div class="card">
             <div class="card-header bg-dark text-white">
-                <h5 class="mb-0"><i class="bi bi-clock-fill"></i> Guard Duty Schedule</h5>
+                <h5 class="mb-0"><i class="bi bi-clock-fill"></i> לוח סידור שמירות</h5>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover table-bordered mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th style="width: 20%;">Time Slot</th>
-                                <th style="width: 80%;">Workers ({{ slot.required_workers|default:"1-2" }} needed)</th>
+                                <th style="width: 20%;">משמרת</th>
+                                <th style="width: 80%;">שומרים</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -43,7 +43,7 @@
                                 <td class="align-middle text-center">
                                     <strong>{{ slot.time_slot }}</strong>
                                     {% if slot.time_slot == '01:00-03:00' or slot.time_slot == '03:00-05:00' %}
-                                        <br><small class="badge bg-warning text-dark">🌙 Night Shift +HC</small>
+                                        <br><small class="badge bg-warning text-dark">🌙 משמרת לילה +מק</small>
                                     {% else %}
                                         <br><small class="text-muted">({{ slot.required_workers }})</small>
                                     {% endif %}
@@ -57,7 +57,7 @@
                                                 <form method="post" action="{% url 'assignments:remove_assignment' assignment.id %}" class="d-inline">
                                                     {% csrf_token %}
                                                     <button type="submit" class="btn btn-sm p-0 border-0 bg-transparent text-white" 
-                                                            onclick="return confirm('Remove this assignment?')">
+                                                            onclick="return confirm('האם למחוק את השיבוץ?')">
                                                         <i class="bi bi-x-circle-fill"></i>
                                                     </button>
                                                 </form>
@@ -71,7 +71,7 @@
                                                 data-task-type="guard_duty" 
                                                 data-time-slot="{{ slot.time_slot }}"
                                                 data-date="{{ selected_date|date:'Y-m-d' }}">
-                                            <i class="bi bi-plus-circle"></i> Add Worker
+                                            <i class="bi bi-plus-circle"></i> הוסף שומר
                                         </button>
                                     </div>
                                 </td>
@@ -89,7 +89,7 @@
         <!-- Kitchen -->
         <div class="card mb-3">
             <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-basket2-fill"></i> Kitchen Workers</span>
+                <span><i class="bi bi-basket2-fill"></i> תורנות מטבח</span>
                 <span class="badge bg-light text-dark">{{ kitchen_workers.count }}/2</span>
             </div>
             <div class="card-body">
@@ -100,7 +100,7 @@
                             <form method="post" action="{% url 'assignments:remove_assignment' assignment.id %}" class="d-inline">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-sm p-0 border-0 bg-transparent text-white"
-                                        onclick="return confirm('Remove this assignment?')">
+                                        onclick="return confirm('האם למחוק את השיבוץ?')">
                                     <i class="bi bi-x-circle-fill"></i>
                                 </button>
                             </form>
@@ -112,7 +112,7 @@
                         data-bs-target="#addWorkerModal" 
                         data-task-type="kitchen" 
                         data-date="{{ selected_date|date:'Y-m-d' }}">
-                    <i class="bi bi-plus-circle"></i> Add Worker
+                    <i class="bi bi-plus-circle"></i> הוסף עובד
                 </button>
             </div>
         </div>
@@ -120,7 +120,7 @@
         <!-- Patrol A -->
         <div class="card mb-3">
             <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-shield-fill"></i> Patrol Group A</span>
+                <span><i class="bi bi-shield-fill"></i>פטרול</span>
                 <span class="badge bg-dark">{{ patrol_a_workers.count }}/6</span>
             </div>
             <div class="card-body">
@@ -131,7 +131,7 @@
                             <form method="post" action="{% url 'assignments:remove_assignment' assignment.id %}" class="d-inline">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-sm p-0 border-0 bg-transparent {% if assignment.is_commander %}text-dark{% else %}text-white{% endif %}"
-                                        onclick="return confirm('Remove this assignment?')">
+                                        onclick="return confirm('האם למחוק את השיבוץ?')">
                                     <i class="bi bi-x-circle-fill"></i>
                                 </button>
                             </form>
@@ -143,7 +143,7 @@
                         data-bs-target="#addWorkerModal" 
                         data-task-type="patrol_a" 
                         data-date="{{ selected_date|date:'Y-m-d' }}">
-                    <i class="bi bi-plus-circle"></i> Add Worker
+                    <i class="bi bi-plus-circle"></i> הוסף לוחם
                 </button>
             </div>
         </div>
@@ -151,7 +151,7 @@
         <!-- Patrol B -->
         <div class="card mb-3">
             <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-shield-fill"></i> Patrol Group B</span>
+                <span><i class="bi bi-shield-fill"></i>כרמל</span>
                 <span class="badge bg-light text-dark">{{ patrol_b_workers.count }}/6</span>
             </div>
             <div class="card-body">
@@ -162,7 +162,7 @@
                             <form method="post" action="{% url 'assignments:remove_assignment' assignment.id %}" class="d-inline">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-sm p-0 border-0 bg-transparent {% if assignment.is_commander %}text-dark{% else %}text-white{% endif %}"
-                                        onclick="return confirm('Remove this assignment?')">
+                                        onclick="return confirm('האם למחוק את השיבוץ?')">
                                     <i class="bi bi-x-circle-fill"></i>
                                 </button>
                             </form>
@@ -174,7 +174,7 @@
                         data-bs-target="#addWorkerModal" 
                         data-task-type="patrol_b" 
                         data-date="{{ selected_date|date:'Y-m-d' }}">
-                    <i class="bi bi-plus-circle"></i> Add Worker
+                    <i class="bi bi-plus-circle"></i> הוסף לוחם
                 </button>
             </div>
         </div>
@@ -188,7 +188,7 @@
             <form method="post" action="{% url 'assignments:assign_worker' %}">
                 {% csrf_token %}
                 <div class="modal-header">
-                    <h5 class="modal-title">Select Worker</h5>
+                    <h5 class="modal-title">בחר עובד</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -197,15 +197,15 @@
                     <input type="hidden" name="time_slot" id="modal-time-slot">
                     
                     <div class="mb-3">
-                        <label class="form-label"><strong>Select Worker:</strong></label>
+                        <label class="form-label"><strong>בחר עובד:</strong></label>
                         <div id="suggested-worker" class="alert alert-success mb-2" style="display: none;">
-                            <strong>💡 Suggested (next in queue):</strong> <span id="suggested-worker-name"></span>
+                            <strong>💡 הצעה (הבא בתור):</strong> <span id="suggested-worker-name"></span>
                         </div>
                         <select name="worker_id" class="form-select" id="worker-dropdown" required>
-                            <option value="">-- Choose a worker --</option>
+                            <option value="">-- בחר עובד --</option>
                             {% for worker in all_workers %}
                                 <option value="{{ worker.id }}">
-                                    {{ worker.name }} ({{ worker.get_title_display }}) - HC: {{ worker.hard_chores_counter }}, OP: {{ worker.outer_partner_counter }}
+                                    {{ worker.name }} ({{ worker.get_title_display }}) - מק: {{ worker.hard_chores_counter }}, שח: {{ worker.outer_partner_counter }}
                                 </option>
                             {% endfor %}
                         </select>
@@ -214,11 +214,11 @@
                     <!-- Queue Order Display -->
                     <div class="mb-3">
                         <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="collapse" data-bs-target="#queue-order">
-                            <i class="bi bi-list-ol"></i> View Queue Order
+                            <i class="bi bi-list-ol"></i> הצג סדר תור
                         </button>
                         <div class="collapse mt-2" id="queue-order">
                             <div class="card card-body">
-                                <small id="queue-display" class="text-muted">Select a task to see queue</small>
+                                <small id="queue-display" class="text-muted">בחר משימה כדי לראות את התור</small>
                             </div>
                         </div>
                     </div>
@@ -226,13 +226,13 @@
                     <div class="mb-3 form-check" id="commander-checkbox-container" style="display: none;">
                         <input type="checkbox" name="is_commander" class="form-check-input" id="is-commander">
                         <label class="form-check-label" for="is-commander">
-                            Assign as Commander (for patrol groups)
+                            שבץ כמפקד (לקבוצות סיור)
                         </label>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Assign Worker</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ביטול</button>
+                    <button type="submit" class="btn btn-primary">שבץ עובד</button>
                 </div>
             </form>
         </div>
@@ -258,6 +258,14 @@ var taskQueues = {
         {% endfor %}
     ]{% if not forloop.last %},{% endif %}
     {% endfor %}
+};
+
+// Task type names in Hebrew
+var taskTypeNames = {
+    'guard_duty': 'שמירה',
+    'kitchen': 'מטבח',
+    'patrol_a': 'סיור א\'',
+    'patrol_b': 'סיור ב\''
 };
 
 // Handle modal data transfer
@@ -302,14 +310,15 @@ addWorkerModal.addEventListener('show.bs.modal', function (event) {
     // Display queue order
     var queueDisplay = document.getElementById('queue-display');
     if (taskQueues[taskType]) {
-        var queueHtml = '<strong>Queue Order for ' + taskType + ':</strong><ol class="mb-0 mt-2">';
+        var taskNameHebrew = taskTypeNames[taskType] || taskType;
+        var queueHtml = '<strong>סדר התור עבור ' + taskNameHebrew + ':</strong><ol class="mb-0 mt-2">';
         taskQueues[taskType].forEach(function(entry) {
             queueHtml += '<li>' + entry.worker_name + ' (' + entry.worker_title + ')</li>';
         });
         queueHtml += '</ol>';
         queueDisplay.innerHTML = queueHtml;
     } else {
-        queueDisplay.innerHTML = '<em>No queue available</em>';
+        queueDisplay.innerHTML = '<em>אין תור זמין</em>';
     }
 });
 </script>

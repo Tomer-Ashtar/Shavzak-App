@@ -1,14 +1,14 @@
 {% extends 'base.html' %}
 
-{% block title %}Workers Management - Workers Jobs Manager{% endblock %}
+{% block title %}ניהול עובדים - שיבוץ קרבי{% endblock %}
 
 {% block content %}
 <div class="row">
     <div class="col-md-12">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1>Workers Management</h1>
+            <h1>ניהול עובדים</h1>
             <a href="{% url 'workers:add' %}" class="btn btn-primary">
-                <i class="bi bi-plus-circle"></i> Add New Worker
+                <i class="bi bi-plus-circle"></i> הוסף עובד חדש
             </a>
         </div>
         
@@ -17,12 +17,12 @@
             <table class="table table-hover table-striped">
                 <thead class="table-dark">
                     <tr>
-                        <th>Name</th>
-                        <th>Title</th>
-                        <th>Hard Chores</th>
-                        <th>Outer Partner</th>
-                        <th>Created</th>
-                        <th>Actions</th>
+                        <th>שם</th>
+                        <th>תפקיד</th>
+                        <th>משימות קשות</th>
+                        <th>שותף חיצוני</th>
+                        <th>תאריך יצירה</th>
+                        <th>פעולות</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -32,17 +32,17 @@
                         <td>{{ worker.get_title_display }}</td>
                         <td><span class="badge bg-warning text-dark">{{ worker.hard_chores_counter }}</span></td>
                         <td><span class="badge bg-success">{{ worker.outer_partner_counter }}</span></td>
-                        <td>{{ worker.created_at|date:"M d, Y" }}</td>
+                        <td>{{ worker.created_at|date:"d/m/Y" }}</td>
                         <td>
                             <div class="btn-group btn-group-sm" role="group">
-                                <a href="{% url 'workers:edit' worker.pk %}" class="btn btn-outline-primary" title="Edit">
-                                    Edit
+                                <a href="{% url 'workers:edit' worker.pk %}" class="btn btn-outline-primary" title="ערוך">
+                                    ערוך
                                 </a>
                                 <button type="button" class="btn btn-outline-danger" 
                                         data-bs-toggle="modal" 
                                         data-bs-target="#deleteModal{{ worker.pk }}"
-                                        title="Delete">
-                                    Delete
+                                        title="מחק">
+                                    מחק
                                 </button>
                             </div>
                         </td>
@@ -53,18 +53,18 @@
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title">Confirm Delete</h5>
+                                    <h5 class="modal-title">אישור מחיקה</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <p>Are you sure you want to delete worker <strong>{{ worker.name }}</strong>?</p>
-                                    <p class="text-danger">This action cannot be undone.</p>
+                                    <p>האם אתה בטוח שברצונך למחוק את העובד <strong>{{ worker.name }}</strong>?</p>
+                                    <p class="text-danger">פעולה זו לא ניתנת לביטול.</p>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ביטול</button>
                                     <form method="post" action="{% url 'workers:delete' worker.pk %}" style="display: inline;">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                        <button type="submit" class="btn btn-danger">מחק</button>
                                     </form>
                                 </div>
                             </div>
@@ -76,12 +76,12 @@
         </div>
         
         <div class="mt-3">
-            <p class="text-muted">Total Workers: <strong>{{ workers.count }}</strong></p>
+            <p class="text-muted">סך הכל עובדים: <strong>{{ workers.count }}</strong></p>
         </div>
         {% else %}
         <div class="alert alert-info" role="alert">
-            <h5>No Workers Found</h5>
-            <p class="mb-0">Click "Add New Worker" to create your first worker.</p>
+            <h5>לא נמצאו עובדים</h5>
+            <p class="mb-0">לחץ על "הוסף עובד חדש" כדי ליצור את העובד הראשון שלך.</p>
         </div>
         {% endif %}
     </div>

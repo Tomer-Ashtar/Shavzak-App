@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 
-{% block title %}{% if form.instance.pk %}Edit Worker{% else %}Add Worker{% endif %} - Workers Jobs Manager{% endblock %}
+{% block title %}{% if form.instance.pk %}עריכת עובד{% else %}הוספת עובד{% endif %} - שיבוץ קרבי{% endblock %}
 
 {% block content %}
 <div class="row">
     <div class="col-md-8 offset-md-2">
         <div class="card">
             <div class="card-header bg-primary text-white">
-                <h3 class="mb-0">{% if form.instance.pk %}Edit Worker{% else %}Add New Worker{% endif %}</h3>
+                <h3 class="mb-0">{% if form.instance.pk %}עריכת עובד{% else %}הוספת עובד חדש{% endif %}</h3>
             </div>
             <div class="card-body">
                 <form method="post">
@@ -20,7 +20,7 @@
                     {% endif %}
                     
                     <div class="mb-3">
-                        <label for="{{ form.name.id_for_label }}" class="form-label">Name *</label>
+                        <label for="{{ form.name.id_for_label }}" class="form-label">שם *</label>
                         {{ form.name }}
                         {% if form.name.errors %}
                         <div class="text-danger">{{ form.name.errors }}</div>
@@ -28,7 +28,7 @@
                     </div>
                     
                     <div class="mb-3">
-                        <label for="{{ form.title.id_for_label }}" class="form-label">Title *</label>
+                        <label for="{{ form.title.id_for_label }}" class="form-label">תפקיד *</label>
                         {{ form.title }}
                         {% if form.title.errors %}
                         <div class="text-danger">{{ form.title.errors }}</div>
@@ -38,31 +38,31 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="{{ form.hard_chores_counter.id_for_label }}" class="form-label">Hard Chores Counter</label>
+                                <label for="{{ form.hard_chores_counter.id_for_label }}" class="form-label">מונה משימות קשות</label>
                                 {{ form.hard_chores_counter }}
                                 {% if form.hard_chores_counter.errors %}
                                 <div class="text-danger">{{ form.hard_chores_counter.errors }}</div>
                                 {% endif %}
-                                <div class="form-text">{{ form.hard_chores_counter.help_text }}</div>
+                                <div class="form-text">מספר המשימות הקשות שבוצעו (לדוגמה: תורנות מטבח)</div>
                             </div>
                         </div>
                         
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="{{ form.outer_partner_counter.id_for_label }}" class="form-label">Outer Partner Counter</label>
+                                <label for="{{ form.outer_partner_counter.id_for_label }}" class="form-label">מונה שותף חיצוני</label>
                                 {{ form.outer_partner_counter }}
                                 {% if form.outer_partner_counter.errors %}
                                 <div class="text-danger">{{ form.outer_partner_counter.errors }}</div>
                                 {% endif %}
-                                <div class="form-text">{{ form.outer_partner_counter.help_text }}</div>
+                                <div class="form-text">מספר המשימות כשותף חיצוני שבוצעו</div>
                             </div>
                         </div>
                     </div>
                     
                     <div class="d-flex justify-content-between mt-4">
-                        <a href="{% url 'workers:list' %}" class="btn btn-secondary">Cancel</a>
+                        <a href="{% url 'workers:list' %}" class="btn btn-secondary">ביטול</a>
                         <button type="submit" class="btn btn-primary">
-                            {% if form.instance.pk %}Update Worker{% else %}Create Worker{% endif %}
+                            {% if form.instance.pk %}עדכן עובד{% else %}צור עובד{% endif %}
                         </button>
                     </div>
                 </form>
@@ -71,4 +71,3 @@
     </div>
 </div>
 {% endblock %}
-
