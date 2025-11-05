@@ -4,6 +4,7 @@ from django.urls import reverse
 from datetime import date
 from .models import Assignment, TaskQueue
 from workers.models import Worker
+from .counter_logic import check_multi_department_slot
 import json
 
 
@@ -120,12 +121,35 @@ def assign_worker(request):
             
             # Check if this is a night shift (01:00-03:00 or 03:00-05:00)
             night_shift_slots = ['01:00-03:00', '03:00-05:00']
-            if task_type == 'guard_duty' and time_slot in night_shift_slots:
+            is_night_shift = task_type == 'guard_duty' and time_slot in night_shift_slots
+            
+            if is_night_shift:
                 worker.hard_chores_counter += 1
                 worker.save()
-                messages.success(request, f'{worker.name} assigned to night shift! Hard chores counter increased.')
+            
+            # Check for multi-department bonus (guard duty only)
+            if task_type == 'guard_duty' and time_slot:
+                has_diff_depts, worker_ids = check_multi_department_slot(selected_date, time_slot)
+                
+                if has_diff_depts:
+                    # Increment outer_partner_counter for all workers with departments in this slot
+                    for wid in worker_ids:
+                        w = Worker.objects.get(id=wid)
+                        w.outer_partner_counter += 1
+                        w.save()
+                    
+                    if is_night_shift:
+                        messages.success(request, f'{worker.name} שובץ למשמרת לילה עם שותפים ממחלקות שונות! מונים עודכנו.')
+                    else:
+                        messages.success(request, f'{worker.name} שובץ עם שותפים ממחלקות שונות! מונה שותף חיצוני עלה.')
+                elif is_night_shift:
+                    messages.success(request, f'{worker.name} שובץ למשמרת לילה! מונה משימות קשות עלה.')
+                else:
+                    messages.success(request, f'{worker.name} שובץ בהצלחה!')
+            elif is_night_shift:
+                messages.success(request, f'{worker.name} שובץ למשמרת לילה! מונה משימות קשות עלה.')
             else:
-                messages.success(request, f'{worker.name} assigned successfully!')
+                messages.success(request, f'{worker.name} שובץ בהצלחה!')
             
             # Move worker to end of queue for this task type
             TaskQueue.move_to_end(worker, task_type)
@@ -152,8 +176,35 @@ def remove_assignment(request, assignment_id):
             night_shift_slots = ['01:00-03:00', '03:00-05:00']
             is_night_shift = task_type == 'guard_duty' and time_slot in night_shift_slots
             
+            # For guard duty, check multi-department status BEFORE deletion
+            had_different_depts_before = False
+            workers_with_dept_before = []
+            
+            if task_type == 'guard_duty' and time_slot:
+                had_different_depts_before, workers_with_dept_before = check_multi_department_slot(
+                    assignment.date, time_slot
+                )
+            
             # Delete the assignment
             assignment.delete()
+            
+            # Check multi-department status AFTER deletion
+            if task_type == 'guard_duty' and time_slot:
+                has_different_depts_after, workers_with_dept_after = check_multi_department_slot(
+                    assignment.date, time_slot
+                )
+                
+                # If we had bonus before but not after, decrement remaining workers
+                if had_different_depts_before and not has_different_depts_after:
+                    for wid in workers_with_dept_after:
+                        w = Worker.objects.get(id=wid)
+                        w.outer_partner_counter = max(0, w.outer_partner_counter - 1)
+                        w.save()
+                
+                # Decrement the removed worker if they had the bonus
+                if worker and worker.id in workers_with_dept_before and had_different_depts_before:
+                    worker.outer_partner_counter = max(0, worker.outer_partner_counter - 1)
+                    worker.save()
             
             # Move worker back to front of queue for this task
             if worker:
@@ -163,11 +214,11 @@ def remove_assignment(request, assignment_id):
                 if is_night_shift:
                     worker.hard_chores_counter = max(0, worker.hard_chores_counter - 1)
                     worker.save()
-                    messages.success(request, f'{worker.name} removed from night shift! Hard chores counter decreased.')
+                    messages.success(request, f'{worker.name} הוסר ממשמרת לילה! מונים עודכנו.')
                 else:
-                    messages.success(request, f'{worker.name} removed and moved to front of {task_type} queue!')
+                    messages.success(request, f'{worker.name} הוסר והועבר לראש תור {task_type}!')
             else:
-                messages.success(request, 'Assignment removed!')
+                messages.success(request, 'השיבוץ הוסר!')
             
             return redirect(f"{reverse('assignments:calendar')}?date={date_param}")
             

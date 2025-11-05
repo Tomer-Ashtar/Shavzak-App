@@ -19,6 +19,7 @@
                     <tr>
                         <th>שם</th>
                         <th>תפקיד</th>
+                        <th>מחלקה</th>
                         <th>משימות קשות</th>
                         <th>שותף חיצוני</th>
                         <th>תאריך יצירה</th>
@@ -30,6 +31,13 @@
                     <tr>
                         <td><strong>{{ worker.name }}</strong></td>
                         <td>{{ worker.get_title_display }}</td>
+                        <td>
+                            {% if worker.department %}
+                                <span class="badge bg-info">{{ worker.get_department_display }}</span>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
                         <td><span class="badge bg-warning text-dark">{{ worker.hard_chores_counter }}</span></td>
                         <td><span class="badge bg-success">{{ worker.outer_partner_counter }}</span></td>
                         <td>{{ worker.created_at|date:"d/m/Y" }}</td>

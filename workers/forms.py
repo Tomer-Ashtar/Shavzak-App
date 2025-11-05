@@ -7,10 +7,11 @@ class WorkerForm(forms.ModelForm):
     
     class Meta:
         model = Worker
-        fields = ['name', 'title', 'hard_chores_counter', 'outer_partner_counter']
+        fields = ['name', 'title', 'department', 'hard_chores_counter', 'outer_partner_counter']
         widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter worker name'}),
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'הכנס שם עובד'}),
             'title': forms.Select(attrs={'class': 'form-control'}),
+            'department': forms.Select(attrs={'class': 'form-control'}),
             'hard_chores_counter': forms.NumberInput(attrs={'class': 'form-control', 'min': '0'}),
             'outer_partner_counter': forms.NumberInput(attrs={'class': 'form-control', 'min': '0'}),
         }
